@@ -1,10 +1,26 @@
-version: '3'
+version: "3"
 services:
   db:
-    volumes:
-     - ./cockroach-data/roach1:/cockroach/cockroach-data
     image: "cockroachdb/cockroach"
     ports:
-     - "26257:26257"
-     - "8080:8080"
+      - "26257:26257"
+      # - "8080:8080"
+    volumes:
+      - ./cockroach-data/roach1:/cockroach/cockroach-data
     command: start --insecure
+  postgraphile:
+    image: "graphile/postgraphile"
+    ports:
+      - "5000:5000"
+    command: postgraphile -n 0.0.0.0 --connection postgresql://root@db:26257/defaultdb?sslmode=disable --schema defaultdb --watch
+    depends_on:
+      - db
+  hasura:
+    image: "hasura/graphql-engine"
+    ports:
+      - "8080:8080"
+    environment:
+      - HASURA_GRAPHQL_DATABASE_URL=postgresql://root@db:26257/defaultdb?sslmode=disable
+      - HASURA_GRAPHQL_ENABLE_CONSOLE=true
+    depends_on:
+      - db
