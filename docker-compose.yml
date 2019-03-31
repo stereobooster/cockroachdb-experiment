@@ -1,0 +1,10 @@
+version: '3'
+services:
+  db:
+    volumes:
+     - ./cockroach-data/roach1:/cockroach/cockroach-data
+    image: "cockroachdb/cockroach"
+    ports:
+     - "26257:26257"
+     - "8080:8080"
+    command: start --insecure
